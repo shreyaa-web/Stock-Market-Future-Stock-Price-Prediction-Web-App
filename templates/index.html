@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SMPS Dashboard | Stock Market Prediction System</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icon Font -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #f1f5f9;
+            --card-bg: #1e293b;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Loader Spinner */
+        #spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+            transition: all 0.5s ease;
+        }
+        
+        #spinner.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .spinner-animation {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            padding: 0 15px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .dashboard-header {
+            background: linear-gradient(to right, var(--dark), var(--secondary));
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .brand-logo i {
+            font-size: 20px;
+            color: white;
+        }
+        
+        .brand-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--warning), var(--danger));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Stock Info Header */
+        .stock-info-header {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            margin: 30px 0;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stock-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stock-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stock-icon i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+        
+        .stock-name h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stock-name p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .prediction-pills {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .prediction-pill {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .prediction-pill.sell {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .prediction-pill i {
+            font-size: 16px;
+            color: var(--success);
+        }
+        
+        .prediction-pill.sell i {
+            color: var(--danger);
+        }
+        
+        .prediction-pill span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--success);
+        }
+        
+        .prediction-pill.sell span {
+            color: var(--danger);
+        }
+        
+        /* Grid Layout */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .col-3 {
+            width: 25%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+        
+        .col-4 {
+            width: 33.33%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+        
+        .col-6 {
+            width: 50%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+        
+        .col-8 {
+            width: 66.67%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+        
+        .col-12 {
+            width: 100%;
+            padding: 0 15px;
+            margin-bottom: 30px;
+        }
+        
+        /* Cards and Widgets */
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .stat-card.success::before {
+            background: var(--success);
+        }
+        
+        .stat-card.warning::before {
+            background: var(--warning);
+        }
+        
+        .stat-card.danger::before {
+            background: var(--danger);
+        }
+        
+        .stat-icon {
+            background: rgba(59, 130, 246, 0.1);
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .stat-icon i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+        
+        .stat-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .stat-icon.success i {
+            color: var(--success);
+        }
+        
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .stat-icon.warning i {
+            color: var(--warning);
+        }
+        
+        .stat-icon.danger {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .stat-icon.danger i {
+            color: var(--danger);
+        }
+        
+        .stat-content {
+            flex-grow: 1;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        /* Chart Cards */
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-title i {
+            color: var(--primary);
+            font-size: 18px;
+        }
+        
+        .chart-actions a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .chart-actions a:hover {
+            color: var(--primary);
+        }
+        
+        .chart-actions a i {
+            font-size: 12px;
+        }
+        
+        .chart-img {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.3);
+        }
+        
+        .chart-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s;
+        }
+        
+        .chart-img:hover img {
+            transform: scale(1.02);
+        }
+        
+        /* Table Styles */
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+        
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .custom-table th {
+            font-weight: 500;
+            color: #94a3b8;
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+        
+        .custom-table td {
+            padding: 15px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+        }
+        
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .custom-table tr {
+            transition: all 0.2s;
+        }
+        
+        .custom-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+        
+        /* Predictions List */
+        .prediction-list {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prediction-list::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .prediction-list-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .prediction-list-title i {
+            color: var(--primary);
+            font-size: 18px;
+        }
+        
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .prediction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .prediction-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .prediction-icon i {
+            font-size: 16px;
+            color: var(--primary);
+        }
+        
+        .prediction-content {
+            flex-grow: 1;
+        }
+        
+        .prediction-value {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .prediction-day {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
+        .prediction-change {
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 5px 10px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .prediction-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        /* Summary Cards */
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .summary-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .summary-title i {
+            color: var(--primary);
+            font-size: 18px;
+        }
+        
+        .summary-content {
+            margin-top: 15px;
+        }
+        
+        .summary-content p {
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+        
+        .summary-content h6 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .summary-content h6 i {
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .recommendation {
+            margin-top: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            border-left: 4px solid var(--success);
+        }
+        
+        .recommendation p {
+            margin: 0;
+            font-size: 14px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .recommendation p i {
+            color: var(--success);
+            font-size: 20px;
+        }
+        
+        .recommendation.sell {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .recommendation.sell p i {
+            color: var(--danger);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--secondary);
+            padding: 20px 0;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .footer a:hover {
+            color: #e2e8f0;
+        }
+        
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            background: #1d4ed8;
+            transform: translateY(-3px);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .col-3 {
+                width: 50%;
+            }
+            
+            .col-4, .col-6 {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .nav-actions {
+                display: none;
+            }
+            
+            .header-content {
+                justify-content: space-between;
+            }
+            
+            .stock-info-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .prediction-pills {
+                margin-top: 10px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .col-3, .col-4, .col-6, .col-8 {
+                width: 100%;
+            }
+            
+            .dashboard-header {
+                padding: 15px 0;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Spinner Start -->
+    <div id="spinner">
+        <div class="spinner-animation"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Header Start -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h1 class="brand-name">SMPS</h1>
+                </div>
+                
+                <div class="nav-actions">
+                    <a href="http://127.0.0.1:5000/prediction" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="http://127.0.0.1:5000/" class="nav-link">
+                        <i class="fas fa-search-dollar"></i> Predict Stock
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i> Currency Convert
+                    </a>
+                </div>
+                
+                <div class="user-profile">
+                    <div class="avatar">A</div>
+                    <div class="user-name">Admin</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Header End -->
+
+    <main class="container">
+        <!-- Stock Info Header -->
+        <div class="stock-info-header">
+            <div class="stock-title">
+                <div class="stock-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stock-name">
+                    <h2>{{quote}} Stock Analysis</h2>
+                    <p>Predictive analysis and market trends</p>
+                </div>
+            </div>
+            
+            <div class="prediction-pills">
+                <div class="prediction-pill {% if decision == 'SELL' %}sell{% endif %}">
+                    <i class="{% if decision == 'SELL' %}fas fa-arrow-down{% else %}fas fa-arrow-up{% endif %}"></i>
+                    <span>Predicted: {{idea}}</span>
+                </div>
+                <div class="prediction-pill {% if decision == 'SELL' %}sell{% endif %}">
+                    <i class="{% if decision == 'SELL' %}fas fa-dollar-sign{% else %}fas fa-hand-holding-dollar{% endif %}"></i>
+                    <span>Recommendation: {{decision}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards Start -->
+        <div class="row">
+            <div class="col-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">OPEN</div>
+                        <div class="stat-value">{{open_s}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-card success">
+                    <div class="stat-icon success">
+                        <i class="fas fa-arrow-trend-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">HIGH</div>
+                        <div class="stat-value">{{high_s}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-card danger">
+                    <div class="stat-icon danger">
+                        <i class="fas fa-arrow-trend-down"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">LOW</div>
+                        <div class="stat-value">{{low_s}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-card warning">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-door-closed"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">CLOSE</div>
+                        <div class="stat-value">{{close_s}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Stats Cards End -->
+        
+        <!-- Volume Card -->
+        <div class="row">
+            <div class="col-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">VOLUME</div>
+                        <div class="stat-value">{{vol}}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prediction Cards -->
+            <div class="col-3">
+                <div class="stat-card success">
+                    <div class="stat-icon success">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">ARIMA PREDICTION</div>
+                        <div class="stat-value">{{arima_pred}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-card success">
+                    <div class="stat-icon success">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">LSTM PREDICTION</div>
+                        <div class="stat-value">{{lstm_pred}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-card success">
+                    <div class="stat-icon success">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">LR PREDICTION</div>
+                        <div class="stat-value">{{lr_pred}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Start -->
+        <div class="row">
+            <div class="col-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-area"></i>
+                            RECENT TRENDS IN {{quote}} STOCK PRICES
+                        </div>
+                        <div class="chart-actions">
+                            <a href="C:\xampp\htdocs\dashforsmps\static\Trends.png" target="_blank">
+                                <i class="fas fa-expand"></i> View Graph
+                            </a>
+                        </div>
+                    </div>
+                    <div class="chart-img">
+                        <img src="{{url_for('static', filename='Trends.png')}}" alt="Stock Trends">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-robot"></i>
+                            ARIMA MODEL ACCURACY
+                        </div>
+                        <div class="chart-actions">
+                            <a href="C:\xampp\htdocs\dashforsmps\static\ARIMA.png" target="_blank">
+                                <i class="fas fa-expand"></i> View Graph
+                            </a>
+                        </div>
+                    </div>
+                    <div class="chart-img">
+                        <img src="{{url_for('static', filename='ARIMA.png')}}" alt="ARIMA Model">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-brain"></i>
+                            LSTM MODEL ACCURACY
+                        </div>
+                        <div class="chart-actions">
+                            <a href="C:\xampp\htdocs\dashforsmps\static\LSTM.png" target="_blank">
+                                <i class="fas fa-expand"></i> View Graph
+                            </a>
+                        </div>
+                    </div>
+                    <div class="chart-img">
+                        <img src="{{url_for('static', filename='LSTM.png')}}" alt="LSTM Model">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-line"></i>
+                            LINEAR REGRESSION MODEL ACCURACY
+                        </div>
+                        <div class="chart-actions">
+                            <a href="C:\xampp\htdocs\dashforsmps\static\LR.png" target="_blank">
+                                <i class="fas fa-expand"></i> View Graph
+                            </a>
+                        </div>
+                    </div>
+                    <div class="chart-img">
+                        <img src="{{url_for('static', filename='LR.png')}}" alt="Linear Regression Model">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-comments"></i>
+                            SENTIMENT ANALYSIS
+                        </div>
+                        <div class="chart-actions">
+                            <a href="C:\xampp\htdocs\dashforsmps\static\SA.png" target="_blank">
+                                <i class="fas fa-expand"></i> View Graph
+                            </a>
+                        </div>
+                    </div>
+                    <div class="chart-img">
+                        <img src="{{url_for('static', filename='SA.png')}}" alt="Sentiment Analysis">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Charts End -->
+
+        <!-- Error Stats Start -->
+        <div class="row">
+            <div class="col-4">
+                <div class="stat-card warning">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">ARIMA ERROR (RMSE)</div>
+                        <div class="stat-value">{{error_arima}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card warning">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">LSTM ERROR (RMSE)</div>
+                        <div class="stat-value">{{error_lstm}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card warning">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">LR ERROR (RMSE)</div>
+                        <div class="stat-value">{{error_lr}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Error Stats End -->
+
+        <!-- News Table Start -->
+        <div class="row">
+            <div class="col-12">
+                <div class="table-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-newspaper"></i>
+                            RECENT NEWS ABOUT {{quote}}
+                        </div>
+                        <div class="chart-actions">
+                            <a href="#">
+                                <i class="fas fa-list"></i> Show All
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" class="custom-checkbox"></th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>News</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(0,20) %}
+                                <tr>
+                                    <td><input type="checkbox" class="custom-checkbox"></td>
+                                    <td>{{tw_list[i][1]}}</td>
+                                    <td>{{tw_list[i][2]}}</td>
+                                    <td>{{tw_list[i][3]}}</td>   
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- News Table End -->
+
+        <!-- Forecast and Summary Start -->
+        <div class="row">
+            <div class="col-4">
+                <div class="prediction-list">
+                    <div class="prediction-list-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        PREDICTED {{quote}} PRICE FOR THE NEXT 7 DAYS
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[0][0]}}</div>
+                            <div class="prediction-day">Day 1</div>
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[1][0]}}</div>
+                            <div class="prediction-day">Day 2</div>
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[2][0]}}</div>
+                            <div class="prediction-day">Day 3</div>
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[3][0]}}</div>
+                            <div class="prediction-day">Day 4</div>
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[4][0]}}</div>
+                            <div class="prediction-day">Day 5</div>
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[5][0]}}</div>
+                            <div class="prediction-day">Day 6</div>
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-value">{{forecast_set[6][0]}}</div>
+                            <div class="prediction-day">Day 7</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="summary-card">
+                    <div class="summary-title">
+                        <i class="fas fa-analytics"></i>
+                        ANALYSIS SUMMARY
+                    </div>
+                    <div class="summary-content">
+                        <h6><i class="fas fa-newspaper"></i> OVERALL NEWS POLARITY</h6>
+                        <p>{{tw_pol}}</p>
+                        
+                        <h6><i class="fas fa-chart-bar"></i> PREDICTION MODELS COMPARISON</h6>
+                        <p>
+                            Based on our analysis, the ARIMA model predicts {{quote}} at <strong>{{arima_pred}}</strong> with an error rate of {{error_arima}}, 
+                            while the LSTM model predicts <strong>{{lstm_pred}}</strong> with an error rate of {{error_lstm}}. 
+                            The Linear Regression model predicts <strong>{{lr_pred}}</strong> with an error rate of {{error_lr}}.
+                        </p>
+                        
+                        <div class="recommendation {% if decision == 'SELL' %}sell{% endif %}">
+                            <p>
+                                <i class="{% if decision == 'SELL' %}fas fa-arrow-trend-down{% else %}fas fa-arrow-trend-up{% endif %}"></i>
+                                <span>According to the ML Predictions & Sentiment Analysis of the News, a <strong>{{idea}}</strong> in {{quote}} stock is expected => <strong>{{decision}}</strong></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Forecast and Summary End -->
+    </main>
+
+    <!-- Footer Start -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    &copy; <a href="#">SMPS</a>, All Rights Reserved.
+                </div>
+                <div>
+                    Designed by <a href="#">Shashank Upadhyaya</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Hide spinner after page loads
+            setTimeout(function() {
+                document.getElementById("spinner").classList.add("hide");
+            }, 500);
+            
+            // Back to top button
+            const backToTopBtn = document.getElementById("backToTop");
+            
+            window.addEventListener("scroll", function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add("show");
+                } else {
+                    backToTopBtn.classList.remove("show");
+                }
+            });
+            
+            backToTopBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        });
+    </script>
+</body>
+</html>
